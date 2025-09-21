@@ -1,0 +1,53 @@
+version: "3.9"
+
+services:
+  mosquitto:
+    image: eclipse-mosquitto:latest
+    container_name: mosquitto3
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ~/bme_project/docker_volumes_SENSOR/mosquitto/config:/mosquitto/config
+
+  telegraf:
+    image: telegraf:latest
+    container_name: telegraf3
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+      - timescaledb
+    volumes:
+      - ~/bme_project/docker_volumes_SENSOR/telegraf/telegraf.conf:/etc/telegraf/telegraf.conf
+    environment:
+      - HOST_PROC=/host/proc
+    network_mode: service:timescaledb
+
+  timescaledb:
+    image: timescale/timescaledb:latest-pg14
+    container_name: timescaledb3
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=elnor007
+      - POSTGRES_DB=my_database
+    ports:
+      - "5432:5432"
+    volumes:
+      - ~/bme_project/docker_volumes_SENSOR/timescaledb/data:/var/lib/postgresql/data
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana3
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=elnor007
+    volumes:
+      - ~/bme_project/docker_volumes_SENSOR/grafana/data:/var/lib/grafana
+      - ~/bme_project/docker_volumes_SENSOR/grafana/ini/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      - timescaledb

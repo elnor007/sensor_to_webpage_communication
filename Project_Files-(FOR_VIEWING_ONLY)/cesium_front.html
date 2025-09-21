@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Live Telemetry on Cesium</title>
+  <script src="https://cesium.com/downloads/cesiumjs/releases/1.113/Build/Cesium/Cesium.js"></script>
+  <link href="https://cesium.com/downloads/cesiumjs/releases/1.113/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+  <style>
+    html, body, #cesiumContainer {
+      width: 100%; height: 100%; margin: 0; padding: 0; overflow: hidden;
+    }
+  </style>
+</head>
+<body>
+  <div id="cesiumContainer"></div>
+
+  <div id="customInfoBox" style="
+  display: none;
+  position: absolute;
+  bottom: 40px;
+  left: 40px;
+  width: 480px;
+  height: 400px;
+  background: rgb(72, 71, 71);
+  border: 1px solid #000000;
+  box-shadow: 0 0 8px rgba(0,0,0,0.2);
+  z-index: 1000;
+  padding: 10px;
+">
+  <div style="text-align: right;">
+    <button onclick="document.getElementById('customInfoBox').style.display='none'">Close</button>
+  </div>
+  <iframe 
+    id="grafanaIframe"
+    src=""
+    width="100%" 
+    height="350" 
+    frameborder="0" 
+    sandbox="allow-scripts allow-same-origin allow-forms">
+  </iframe>
+</div>
+
+
+  <script>
+    // 1. Initialize the Cesium viewer
+    Cesium.Ion.defaultAccessToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJjNTc5OWMwNC0wYzdiLTQxOTYtYmYxZS1lNjBiMWY0OWY5YTYiLCJpZCI6MzA2NzYwLCJpYXQiOjE3NDgzNTQ3ODh9.05UqGaqjbpRqyM-GcuxnuAGqwBmYPTjIsgCUO80p0wA';
+    var viewer = new Cesium.Viewer('cesiumContainer', {
+      shouldAnimate: true,
+      infoBox: false
+    });
+
+
+
+    const max = 40
+    const min = 0
+
+    function getColorForValue(value, min, max) {
+    // Clamp and normalize value between 0 and 1
+    const normalized = Math.min(Math.max((value - min) / (max - min), 0), 1);
+
+    // Compute RGB via gradient: blue → green → red
+    let r, g, b;
+
+    if (normalized < 0.5) {
+      // Blue (0,0,255) → Green (0,255,0)
+      const t = normalized * 2;
+      r = 0;
+      g = Math.floor(255 * t);
+      b = Math.floor(255 * (1 - t));
+    } else {
+      // Green (0,255,0) → Red (255,0,0)
+      const t = (normalized - 0.5) * 2;
+      r = Math.floor(255 * t);
+      g = Math.floor(255 * (1 - t));
+      b = 0;
+    }
+
+    return Cesium.Color.fromBytes(r, g, b, 255);
+    }
+    
+
+    // 2. Add a dynamic entity to update its position
+    const telemetryEntity = viewer.entities.add({
+      name: "Live Telemetry",
+      position: Cesium.Cartesian3.fromDegrees(0, 0, 0),
+      point: {
+        pixelSize: 10,
+        color: Cesium.Color.BLACK,
+        outlineColor: Cesium.Color.WHITE,
+        outlineWidth: 2
+      },
+      label: {
+        text: "Live Target",
+        font: "14px sans-serif",
+        verticalOrigin: Cesium.VerticalOrigin.TOP,
+        pixelOffset: new Cesium.Cartesian2(0, -20)
+      }
+    });    
+
+    const host = window.location.hostname;
+
+    viewer.screenSpaceEventHandler.setInputAction(function (movement) {
+    const pickedObject = viewer.scene.pick(movement.position);
+    if (Cesium.defined(pickedObject) && pickedObject.id === telemetryEntity) {
+      const iframe = document.getElementById("grafanaIframe");
+      iframe.src = `http://${host}:3000/d-solo/e8ca63cd-7dae-42cf-afda-86ec678f9f04/humidity-bme680?orgId=1&from=1757257038531&to=1757257938531&timezone=browser&panelId=1`;
+
+      document.getElementById("customInfoBox").style.display = "block";
+    }
+  }, Cesium.ScreenSpaceEventType.LEFT_CLICK);
+
+
+
+    // 3. Connect to the SSE stream
+    const source = new EventSource(`http://localhost:5000/stream`);
+
+    source.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+
+      const lon = data.longitude;
+      const lat = data.latitude;
+
+      const position = Cesium.Cartesian3.fromDegrees(lon, lat);
+
+      // 4. Update entity position
+      telemetryEntity.position = position;
+      telemetryEntity.point.color = getColorForValue(data.temperature, min, max)
+      //emetryEntity.description = `Duration : ${data.value}`
+
+      // Optional: move camera to focus on first point
+    };
+
+    source.onerror = function(err) {
+      console.error("SSE connection error:", err);
+    };
+  </script>
+</body>
+</html>
