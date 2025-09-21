@@ -1,12 +1,22 @@
-# Setup Guide - sensor_to_webpage_communication
+# Full Setup Guide & Usage Guide
 <br><br>
 
 ## Introduction
+<br>
+
+### 
+The purpose of this project is to provide the user a system where data can be inserted into a database over a WiFi connection (using MQTT), and streamed to a frontend webpage, where the data can then be fixed to a geographical location (representing the sensor's location) and visualised. This allows for real-time data visualisation, and could eventually be scaled to integrate 10s, 100s or even more sensors. Below is a block-diagram representation of the system in order to fully grasp the technologies at hand and their interactions:
+
 <br><br>
 
-### What is this and what does it do?
+<img width="1715" height="467" alt="image" src="https://github.com/user-attachments/assets/d81f31be-0896-4347-9b92-44e349a4a3a2" />
+
+<br><br>
+
+The process starts with the **sensor** sending a JSON string to the **mqtt broker** hosted on a nearby server. The mqtt broker then passes this message to **Telegraf**, which is responsible for directing it to the correct **database** based on the topic contained within the message. Telegraf inserts this message into the corresponding table in the database, and the database is **polled by a python script**, extracting one message at a time. Using the SSE (server sent events) endpoint on the script, the message is streamed to the **frontend**, where the data is represented in the form of a point on the map, and the sensor value changes its colour with respect to a colour gradient. Upon clicking on the point, an infobox appears, containing a **Grafana** graph of the sensor readings over the last 15 minutes.
 
 
+<br><br>
 
 ### *Mock Sensor Simulated Data*
 <img width="2473" height="1185" alt="image" src="https://github.com/user-attachments/assets/ab709445-e0e4-4f9b-b281-3c58730d1c9f" />
@@ -17,7 +27,7 @@
 <img width="2475" height="1182" alt="image" src="https://github.com/user-attachments/assets/d342024a-1d25-4e85-98b4-20884e6f7c01" />
 <br><br>
 
-## Instructions
+## Setup Instructions
 
 <br>
 
