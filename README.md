@@ -213,6 +213,7 @@ dbname=my_database"
 <br>
 
 ### \*\*If firewall is blocking inbound traffic, RUN THIS FROM POWERSHELL ADMINISTRATOR\*\*
+There is a high likelihood that the firewall is blocking inbound traffic to port 1883, so if you are having trouble with receiving data from the sensor, make sure you run the code below.
 ````
 New-NetFirewallRule -DisplayName "Allow MQTT 1883" -Direction Inbound -Protocol TCP -LocalPort 1883 -Action Allow
 ````
