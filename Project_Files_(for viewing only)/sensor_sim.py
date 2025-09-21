@@ -4,7 +4,7 @@ import time
 import random
 
 # MQTT broker configuration
-BROKER = "localhost"          # Use "host.docker.internal" if broker is in Docker on Windows/macOS
+BROKER = "localhost"          # Use "host.docker.internal" if broker is in a Docker container on Windows/macOS
 PORT = 1883
 TOPIC = "sensors/bme680"
 USERNAME = "telegraf"
