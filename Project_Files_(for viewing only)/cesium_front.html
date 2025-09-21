@@ -50,7 +50,7 @@
     });
 
 
-
+    // The limits in which the measured value should reside in. Used to define the colour gradient bounds for a given measurement
     const max = 10
     const min = 0
 
@@ -58,7 +58,7 @@
     // Clamp and normalize value between 0 and 1
     const normalized = Math.min(Math.max((value - min) / (max - min), 0), 1);
 
-    // Compute RGB via gradient: blue → green → red
+    // Compute RGB via gradient: blue -> green -> red
     let r, g, b;
 
     if (normalized < 0.5) {
@@ -117,21 +117,20 @@
     source.onmessage = function(event) {
       const data = JSON.parse(event.data);
 
-      const lon = data.longitude;
-      const lat = data.latitude;
-      temperature = data.temperature
-      humidity = data.humidity
-      pressure = data.pressure
-      mock_data = data.duration
+      // Values
+      const lon = data.longitude ?? 0;
+      const lat = data.latitude ?? 0;
+      temperature = data.temperature ?? 0;
+      humidity = data.humidity ?? 0;
+      pressure = data.pressure ?? 0;
+      mock_data = data.duration ?? 0;    
 
       const position = Cesium.Cartesian3.fromDegrees(lon, lat);
 
       // 4. Update entity position
       telemetryEntity.position = position;
       telemetryEntity.point.color = getColorForValue(mock_data, min, max) // change mock_data variable to either humidity, pressure or temperature (adjust min max variables appropriately)
-      //emetryEntity.description = `Duration : ${data.value}`
 
-      // Optional: move camera to focus on first point
     };
 
     source.onerror = function(err) {
