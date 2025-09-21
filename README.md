@@ -1,6 +1,26 @@
 # Setup Guide - sensor_to_webpage_communication
 <br><br>
 
+## Introduction
+<br><br>
+
+### What is this and what does it do?
+
+
+
+### *Mock Sensor Simulated Data*
+<img width="2473" height="1185" alt="image" src="https://github.com/user-attachments/assets/ab709445-e0e4-4f9b-b281-3c58730d1c9f" />
+
+<br><br>
+
+### *BME680 Live Temperature Data*
+<img width="2475" height="1182" alt="image" src="https://github.com/user-attachments/assets/d342024a-1d25-4e85-98b4-20884e6f7c01" />
+<br><br>
+
+## Instructions
+
+<br>
+
 ### Get WSL
 ````
 wsl --install
