@@ -5,7 +5,7 @@
 <br>
 
 ### 
-The purpose of this project is to provide the user a system where data can be inserted into a database over a WiFi connection (using MQTT), and streamed to a frontend webpage, where the data can then be fixed to a geographical location (representing the sensor's location) and visualised. This allows for real-time data visualisation, and could eventually be scaled to integrate 10s, 100s or even more sensors. Below is a block-diagram representation of the system in order to fully grasp the technologies at hand and their interactions:
+The purpose of this project is to provide the user a system where data can be inserted into a database over a WiFi connection (using MQTT), and streamed to a frontend webpage, where the data can then be fixed to a geographical location (representing the sensor's location) and visualised. This allows for real-time data visualisation, and could eventually be scaled to integrate 10s, 100s or even more sensors. *In this project, a BME680 sensor was used as the data input, but the system can easily be retrofitted to intake data from other sensors, as long as it's capable of sending MQTT messages over the network*. Below is a block-diagram representation of the system in order to fully grasp the technologies at hand and their interactions:
 
 <br><br>
 
